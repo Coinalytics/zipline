@@ -16,6 +16,7 @@
 import bisect
 import logbook
 import datetime
+import pytz
 
 import pandas as pd
 
@@ -243,8 +244,28 @@ class SimulationParameters(object):
         assert self.period_start <= self.period_end, \
             "Period start falls after period end."
 
+        print "self.period_start"
+        print self.period_start
+        print "environment.last_trading_day"
+        print environment.last_trading_day
+
+        # force UTC timezone to prevent runtime error
+        try: 
+            self.period_start == environment.last_trading_day
+        except ValueError:
+            tz = pytz.timezone('UTC')
+            self.period_start = tz.localize(self.period_start)
+
         assert self.period_start <= environment.last_trading_day, \
             "Period start falls after the last known trading day."
+
+        # force UTC timezone to prevent runtime error
+        try: 
+            self.period_end == environment.first_trading_day
+        except ValueError:
+            tz = pytz.timezone('UTC')
+            self.period_end = tz.localize(self.period_end)
+
         assert self.period_end >= environment.first_trading_day, \
             "Period end falls before the first known trading day."
 
